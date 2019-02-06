@@ -31,18 +31,21 @@ class ProductCard extends StatelessWidget {
   }
 
   Widget _buildActionButtons(BuildContext context) {
-    return ButtonBar(
-      alignment: MainAxisAlignment.center,
-      children: <Widget>[
-        IconButton(
-          icon: Icon(Icons.info),
-          color: Theme.of(context).accentColor,
-          onPressed: () => Navigator.pushNamed<bool>(
-              context, '/product/' + productIndex.toString()),
-        ),
-        ScopedModelDescendant<MainModel>(
-          builder: (BuildContext context, Widget child, MainModel model) {
-            return IconButton(
+    return ScopedModelDescendant<MainModel>(
+      builder: (BuildContext context, Widget child, MainModel model) {
+        return ButtonBar(
+          alignment: MainAxisAlignment.center,
+          children: <Widget>[
+            IconButton(
+              icon: Icon(Icons.info),
+              color: Theme.of(context).accentColor,
+              onPressed: () {
+                model.selectProduct(productIndex);
+                Navigator.pushNamed<bool>(
+                    context, '/product/' + productIndex.toString());
+              },
+            ),
+            IconButton(
               icon: Icon(
                   product.isFavorite ? Icons.favorite : Icons.favorite_border),
               color: Colors.red,
@@ -50,10 +53,10 @@ class ProductCard extends StatelessWidget {
                 model.selectProduct(productIndex);
                 model.toggleProductFavoriteStatus();
               },
-            );
-          },
-        ),
-      ],
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -66,7 +69,7 @@ class ProductCard extends StatelessWidget {
             image: NetworkImage(product.image),
             placeholder: AssetImage('assets/food.jpg'),
             height: 300.0,
-            fit: BoxFit.cover,            
+            fit: BoxFit.cover,
           ),
           _buildTitlePriceRow(),
           AddressTag('Union Square, San Francisco'),
@@ -74,6 +77,6 @@ class ProductCard extends StatelessWidget {
           _buildActionButtons(context)
         ],
       ),
-    ); 
+    );
   }
 }

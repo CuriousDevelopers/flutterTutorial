@@ -18,13 +18,71 @@ class _ProductEditPageState extends State<ProductEditPage> {
     'title': null,
     'description': null,
     'price': null,
-    'image': 'https://cdn.shopify.com/s/files/1/1087/0244/products/chocolate_mousse_bombe_cake_large.png?v=1532873508',
+    'image':
+        'https://cdn.shopify.com/s/files/1/1087/0244/products/chocolate_mousse_bombe_cake_large.png?v=1532873508',
     'location': 'Minneapolis, MN',
   };
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final _titleFocusNode = FocusNode();
   final _descriptionFocusNode = FocusNode();
   final _priceFocusNode = FocusNode();
+
+  @override
+  Widget build(BuildContext context) {
+    return ScopedModelDescendant<MainModel>(
+      builder: (BuildContext context, Widget child, MainModel model) {
+        final Widget pageContent =
+            _buildPageContent(context, model.selectedProduct);
+        return model.selectedProductIndex == null
+            ? pageContent
+            : Scaffold(
+                appBar: AppBar(
+                  title: Text('Edit Product'),
+                ),
+                body: pageContent,
+              );
+      },
+    );
+  }
+
+  Widget _buildPageContent(BuildContext context, Product product) {
+    final double deviceWidth = MediaQuery.of(context).size.width;
+    final double targetWidth = deviceWidth > 550.0 ? 500.0 : deviceWidth * 0.95;
+    final double targetPadding = deviceWidth - targetWidth;
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).requestFocus(FocusNode());
+      },
+      child: Container(
+        margin: EdgeInsets.all(10.0),
+        child: Form(
+          key: _formKey,
+          child: Material(
+            child: ListView(
+              padding: EdgeInsets.symmetric(horizontal: targetPadding / 2),
+              children: <Widget>[
+                _buildTitleTextField(product),
+                _buildDescriptionTextField(product),
+                _buildPriceTextField(product),
+                SizedBox(
+                  height: 10.0,
+                ),
+                _buildSubmitButton(),
+                // GestureDetector(
+                //   onTap: _submitForm,
+                //   child: Container(
+                //     color: Colors.green,
+                //     padding: EdgeInsets.all(5.0),
+                //     child: Text('My Button'),
+                //   ),
+                // )
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
   Widget _buildTitleTextField(Product product) {
     return EnsureVisibleWhenFocused(
@@ -106,45 +164,6 @@ class _ProductEditPageState extends State<ProductEditPage> {
     );
   }
 
-  Widget _buildPageContent(BuildContext context, Product product) {
-    final double deviceWidth = MediaQuery.of(context).size.width;
-    final double targetWidth = deviceWidth > 550.0 ? 500.0 : deviceWidth * 0.95;
-    final double targetPadding = deviceWidth - targetWidth;
-    return GestureDetector(
-      onTap: () {
-        FocusScope.of(context).requestFocus(FocusNode());
-      },
-      child: Container(
-        margin: EdgeInsets.all(10.0),
-        child: Form(
-          key: _formKey,
-          child: Material(
-            child: ListView(
-              padding: EdgeInsets.symmetric(horizontal: targetPadding / 2),
-              children: <Widget>[
-                _buildTitleTextField(product),
-                _buildDescriptionTextField(product),
-                _buildPriceTextField(product),
-                SizedBox(
-                  height: 10.0,
-                ),
-                _buildSubmitButton(),
-                // GestureDetector(
-                //   onTap: _submitForm,
-                //   child: Container(
-                //     color: Colors.green,
-                //     padding: EdgeInsets.all(5.0),
-                //     child: Text('My Button'),
-                //   ),
-                // )
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   void _submitForm(Function addProduct, Function updateProduct,
       [int selectedProductIndex]) {
     if (!_formKey.currentState.validate()) {
@@ -169,23 +188,5 @@ class _ProductEditPageState extends State<ProductEditPage> {
         _formData['image'],
       ).then((_) => Navigator.pushReplacementNamed(context, '/products'));
     }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return ScopedModelDescendant<MainModel>(
-      builder: (BuildContext context, Widget child, MainModel model) {
-        final Widget pageContent =
-            _buildPageContent(context, model.selectedProduct);
-        return model.selectedProductIndex == null
-            ? pageContent
-            : Scaffold(
-                appBar: AppBar(
-                  title: Text('Edit Product'),
-                ),
-                body: pageContent,
-              );
-      },
-    );
   }
 }

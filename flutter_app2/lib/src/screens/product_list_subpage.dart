@@ -33,7 +33,10 @@ class ProductListPageState extends State<ProductListPage> {
               return ProductEditPage();
             },
           ),
-        ).then((_) => model.selectProduct(null));
+        ).then((_) {
+          ///this is to make sure that there wont be any selection when the user clicks back button in the edit page
+          model.selectProduct(null);
+        });
       },
     );
   }

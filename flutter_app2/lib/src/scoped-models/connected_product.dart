@@ -17,8 +17,8 @@ mixin ConnectedProductsModel on Model {
     _isLoading = true;
     notifyListeners();
 
-    final imageurl =
-        'https://cdn.pixabay.com/photo/2015/10/02/12/00/chocolate-968457_960_720.jpg';
+    // final imageurl =
+    //     'https://cdn.pixabay.com/photo/2015/10/02/12/00/chocolate-968457_960_720.jpg';
 
     final Map<String, dynamic> productData = {
       'title': title,
@@ -129,7 +129,7 @@ mixin ProductsModelMixin on ConnectedProductsModel {
 
     http
         .delete(
-            "https://flutter-products-4e805.firebaseio.com/products/${deletedProductId}.json")
+            "https://flutter-products-4e805.firebaseio.com/products/$deletedProductId.json")
         .then((http.Response response) {
       _isLoading = false;
       notifyListeners();

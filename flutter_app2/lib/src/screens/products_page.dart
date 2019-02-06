@@ -15,6 +15,8 @@ class ProductsPage extends StatefulWidget {
   }
 }
 
+///this class is changed to state from stateless becuase we need to get products when this screen loads for the first time to keep the list updated. 
+
 class ProductsPageState extends State<ProductsPage> {
   initState() {
     widget.model.fetchProducts();

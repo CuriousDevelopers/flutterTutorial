@@ -14,6 +14,26 @@ class ProductCard extends StatelessWidget {
 
   ProductCard(this.product, this.productIndex);
 
+ @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Column(
+        children: <Widget>[
+          FadeInImage(
+            image: NetworkImage(product.image),
+            placeholder: AssetImage('assets/food.jpg'),
+            height: 300.0,
+            fit: BoxFit.cover,
+          ),
+          _buildTitlePriceRow(),
+          AddressTag('Union Square, San Francisco'),
+          Text(product.userEmail),
+          _buildActionButtons(context)
+        ],
+      ),
+    );
+  }
+
   Widget _buildTitlePriceRow() {
     return Container(
       padding: EdgeInsets.only(top: 10.0),
@@ -60,23 +80,5 @@ class ProductCard extends StatelessWidget {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Column(
-        children: <Widget>[
-          FadeInImage(
-            image: NetworkImage(product.image),
-            placeholder: AssetImage('assets/food.jpg'),
-            height: 300.0,
-            fit: BoxFit.cover,
-          ),
-          _buildTitlePriceRow(),
-          AddressTag('Union Square, San Francisco'),
-          Text(product.userEmail),
-          _buildActionButtons(context)
-        ],
-      ),
-    );
-  }
+ 
 }

@@ -15,32 +15,12 @@ class ProductsPage extends StatefulWidget {
   }
 }
 
-///this class is changed to state from stateless becuase we need to get products when this screen loads for the first time to keep the list updated. 
+///this class is changed to state from stateless becuase we need to get products when this screen loads for the first time to keep the list updated.
 
 class ProductsPageState extends State<ProductsPage> {
   initState() {
     widget.model.fetchProducts();
     super.initState();
-  }
-
-  Widget _buildSideDrawer(BuildContext context) {
-    return Drawer(
-      child: Column(
-        children: <Widget>[
-          AppBar(
-            automaticallyImplyLeading: false,
-            title: Text('Choose'),
-          ),
-          ListTile(
-            leading: Icon(Icons.edit),
-            title: Text('Manage Products'),
-            onTap: () {
-              Navigator.pushReplacementNamed(context, '/admin');
-            },
-          )
-        ],
-      ),
-    );
   }
 
   @override
@@ -65,6 +45,26 @@ class ProductsPageState extends State<ProductsPage> {
         ],
       ),
       body: _buildProducts(),
+    );
+  }
+
+  Widget _buildSideDrawer(BuildContext context) {
+    return Drawer(
+      child: Column(
+        children: <Widget>[
+          AppBar(
+            automaticallyImplyLeading: false,
+            title: Text('Choose'),
+          ),
+          ListTile(
+            leading: Icon(Icons.edit),
+            title: Text('Manage Products'),
+            onTap: () {
+              Navigator.pushReplacementNamed(context, '/admin');
+            },
+          )
+        ],
+      ),
     );
   }
 

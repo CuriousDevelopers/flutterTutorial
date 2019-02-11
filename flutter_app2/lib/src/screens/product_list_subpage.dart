@@ -22,25 +22,6 @@ class ProductListPageState extends State<ProductListPage> {
     super.initState();
   }
 
-  Widget _buildEditButton(BuildContext context, int index, MainModel model) {
-    return IconButton(
-      icon: Icon(Icons.edit),
-      onPressed: () {
-        model.selectProduct(index);
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (BuildContext context) {
-              return ProductEditPage();
-            },
-          ),
-        ).then((_) {
-          ///this is to make sure that there wont be any selection when the user clicks back button in the edit page
-          model.selectProduct(null);
-        });
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return ScopedModelDescendant<MainModel>(
@@ -79,6 +60,25 @@ class ProductListPageState extends State<ProductListPage> {
             );
           },
         );
+      },
+    );
+  }
+
+  Widget _buildEditButton(BuildContext context, int index, MainModel model) {
+    return IconButton(
+      icon: Icon(Icons.edit),
+      onPressed: () {
+        model.selectProduct(index);
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (BuildContext context) {
+              return ProductEditPage();
+            },
+          ),
+        ).then((_) {
+          ///this is to make sure that there wont be any selection when the user clicks back button in the edit page
+          model.selectProduct(null);
+        });
       },
     );
   }

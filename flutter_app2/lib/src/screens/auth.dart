@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
 import '../scoped-models/main.dart';
 
-
 /* 
 A StatelessWidget will never rebuild by itself (but can from external events). A StatefulWidget can. That is the golden rule.
 
@@ -19,13 +18,62 @@ class Auth extends StatefulWidget {
 }
 
 class AuthState extends State<Auth> {
-  
   Map<String, dynamic> _formValues = {
     "email": null,
     "password": null,
     "acceptTerms": true,
   };
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  @override
+  Widget build(BuildContext context) {
+    final double deviceWidth = MediaQuery.of(context).size.width;
+    final double targetWidth = deviceWidth > 550.0 ? 500.0 : deviceWidth * 0.95;
+
+    return Scaffold(
+        appBar: AppBar(
+          title: Text("LOG IN!"),
+        ),
+        body: Container(
+          decoration: BoxDecoration(            
+            image: _buildBackgroundImage(),
+          ),
+          padding: EdgeInsets.all(10.0),
+          child: Form(
+            key: _formKey,
+            child: Center(
+              child: SingleChildScrollView(
+                child: Container(
+                  width: targetWidth,
+                  child: Column(
+                    children: <Widget>[
+                      _buildEmailTextField(),
+                      SizedBox(
+                        height: 10.0,
+                      ),
+                      _buildPasswordTextField(),
+                      _buildTermsCheckbox(),
+                      SizedBox(
+                        height: 20.0,
+                      ),
+                      ScopedModelDescendant(
+                        builder: (BuildContext context, Widget child,
+                            MainModel model) {
+                          return RaisedButton(
+                            child: Text("Login"),
+                            onPressed: () => submit(context, model.login),
+                          );
+                        },
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ));
+  }
+
   DecorationImage _buildBackgroundImage() {
     return DecorationImage(
       image: AssetImage('assets/background.jpg'),
@@ -115,58 +163,9 @@ class AuthState extends State<Auth> {
         );
       } else {
         _formKey.currentState.save();
-        loginFunction(_formValues["email"],_formValues["password"]);
+        loginFunction(_formValues["email"], _formValues["password"]);
         Navigator.pushReplacementNamed(context, "/products");
       }
     }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final double deviceWidth = MediaQuery.of(context).size.width;
-    final double targetWidth = deviceWidth > 550.0 ? 500.0 : deviceWidth * 0.95;
-
-    return Scaffold(
-        appBar: AppBar(
-          title: Text("LOG IN!"),
-        ),
-        body: Container(
-          decoration: BoxDecoration(
-            image: _buildBackgroundImage(),
-          ),
-          padding: EdgeInsets.all(10.0),
-          child: Form(
-            key: _formKey,
-            child: Center(
-              child: SingleChildScrollView(
-                child: Container(
-                  width: targetWidth,
-                  child: Column(
-                    children: <Widget>[
-                      _buildEmailTextField(),
-                      SizedBox(
-                        height: 10.0,
-                      ),
-                      _buildPasswordTextField(),
-                      _buildTermsCheckbox(),
-                      SizedBox(
-                        height: 20.0,
-                      ),
-                      ScopedModelDescendant(
-                        builder: (BuildContext context, Widget child,
-                            MainModel model) {
-                          return RaisedButton(
-                            child: Text("Login"),
-                            onPressed: () => submit(context, model.login),
-                          );
-                        },
-                      )
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ));
   }
 }

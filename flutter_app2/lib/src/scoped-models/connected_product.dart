@@ -87,7 +87,7 @@ mixin ProductsModelMixin on ConnectedProductsModel {
   }
 
   Future<Null> updateProduct(String title, String description, double price,
-      String location, String image) {
+      String location, String image, bool isFavorite) {
     _isLoading = true;
     notifyListeners();
     final Map<String, dynamic> updatedData = {
@@ -96,8 +96,9 @@ mixin ProductsModelMixin on ConnectedProductsModel {
       "location": location,
       "price": price,
       "image": image,
-      "userEmail": selectedProduct.userEmail,
-      "userId": selectedProduct.userId,
+      "userEmail": _authenticatedUser.email,
+      "userId": _authenticatedUser.id,
+      "isFavorite": isFavorite
     };
     return http
         .put(
@@ -109,7 +110,7 @@ mixin ProductsModelMixin on ConnectedProductsModel {
           id: selectedProduct.id,
           userEmail: _authenticatedUser.email,
           userId: _authenticatedUser.id,
-          isFavorite: selectedProduct.isFavorite,
+          isFavorite: isFavorite,
           title: title,
           description: description,
           price: price,
@@ -149,9 +150,19 @@ mixin ProductsModelMixin on ConnectedProductsModel {
         userEmail: selectedProduct.userEmail,
         userId: selectedProduct.userId,
         isFavorite: newFavoriteStatus);
-    _products[_selProductIndex] = updatedProduct;
-    _selProductIndex = null;
-    notifyListeners();
+    var productIndexInquestion = _selProductIndex;
+    updateProduct(
+            updatedProduct.title,
+            updatedProduct.description,
+            updatedProduct.price,
+            updatedProduct.location,
+            updatedProduct.image,
+            updatedProduct.isFavorite)
+        .then((_) {
+      _products[productIndexInquestion] = updatedProduct;
+      _selProductIndex = null;
+      notifyListeners();
+    });
   }
 
   void selectProduct(int index) {
@@ -166,6 +177,7 @@ mixin ProductsModelMixin on ConnectedProductsModel {
     notifyListeners();
   }
 
+  ///the return type is Future<Null>. This is to show a circlular indicator when we are waiting for a response
   Future<Null> fetchProducts() {
     _isLoading = true;
     final List<Product> fetchedProductList = [];
@@ -182,7 +194,7 @@ mixin ProductsModelMixin on ConnectedProductsModel {
             image: productData["image"],
             location: productData["location"],
             price: productData["price"],
-            isFavorite: false,
+            isFavorite: productData["isFavorite"],
             userEmail: productData["userEmail"],
             userId: productData["userId"],
           );

@@ -52,18 +52,16 @@ class _AuthPageState extends State<AuthPage> {
 
   Widget _buildPasswordConfirmTextField() {
     return TextFormField(
-      decoration: InputDecoration(
-          labelText: 'Confirm Password', filled: true, fillColor: Colors.white),
-      obscureText: true, 
-      validator: (String value) {
-        if (_passwordTextController.text != value) {
-          return 'Passwords do not match';
-        }
-      },
-      onSaved: (String value) {
-        _formData['email'] = value;
-      },
-    );
+        decoration: InputDecoration(
+            labelText: 'Confirm Password',
+            filled: true,
+            fillColor: Colors.white),
+        obscureText: true,
+        validator: (String value) {
+          if (_passwordTextController.text != value) {
+            return 'Passwords do not match';
+          }
+        });
   }
 
   Widget _buildPasswordTextField() {
@@ -71,7 +69,7 @@ class _AuthPageState extends State<AuthPage> {
       decoration: InputDecoration(
           labelText: 'Password', filled: true, fillColor: Colors.white),
       obscureText: true,
-      controller: _passwordTextController, 
+      controller: _passwordTextController,
       validator: (String value) {
         if (value.isEmpty || value.length < 6) {
           return 'Password invalid';
@@ -95,13 +93,39 @@ class _AuthPageState extends State<AuthPage> {
     );
   }
 
-  void _submitForm(Function login) {
+  void _submitForm(Function login, Function signup) async {
     if (!_formKey.currentState.validate() || !_formData['acceptTerms']) {
       return;
     }
     _formKey.currentState.save();
-    login(_formData['email'], _formData['password']);
-    Navigator.pushReplacementNamed(context, '/products');
+    Map<String, dynamic> successInformation;
+    if (_authMode == AuthMode.Login)
+      successInformation =
+          await login(_formData['email'], _formData['password']);
+    else {
+      successInformation =
+          await signup(_formData['email'], _formData['password']);
+    }
+    if (successInformation['success']) {
+      Navigator.pushReplacementNamed(context, '/products');
+    } else {
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Error occurred'),
+              content: Text(successInformation['message']),
+              actions: <Widget>[
+                FlatButton(
+                  child: Text('Okay'),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                )
+              ],
+            );
+          });
+    }
   }
 
   @override
@@ -133,7 +157,9 @@ class _AuthPageState extends State<AuthPage> {
                     SizedBox(
                       height: 10.0,
                     ),
-                    _authMode == AuthMode.Signup? _buildPasswordConfirmTextField(): Container(),
+                    _authMode == AuthMode.Signup
+                        ? _buildPasswordConfirmTextField()
+                        : Container(),
                     _buildAcceptSwitch(),
                     SizedBox(
                       height: 10.0,
@@ -155,11 +181,16 @@ class _AuthPageState extends State<AuthPage> {
                     ScopedModelDescendant<MainModel>(
                       builder: (BuildContext context, Widget child,
                           MainModel model) {
-                        return RaisedButton(
-                          textColor: Colors.white,
-                          child: Text('LOGIN'),
-                          onPressed: () => _submitForm(model.login),
-                        );
+                        return model.isLoading
+                            ? CircularProgressIndicator()
+                            : RaisedButton(
+                                textColor: Colors.white,
+                                child: _authMode == AuthMode.Login
+                                    ? Text('LOGIN')
+                                    : Text('SIGNUP'),
+                                onPressed: () =>
+                                    _submitForm(model.login, model.signup),
+                              );
                       },
                     ),
                   ],

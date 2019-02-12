@@ -220,9 +220,66 @@ mixin ProductsModel on ConnectedProductsModel {
 }
 
 mixin UserModel on ConnectedProductsModel {
-  void login(String email, String password) {
+  Future<Map<String, dynamic>> login(String email, String password) async {
     _authenticatedUser =
         User(id: 'fdalsdfasf', email: email, password: password);
+    _isLoading = true;
+    notifyListeners();
+    final Map<String, dynamic> authData = {
+      'email': email,
+      'password': password,
+      'returnSecureToken': true
+    };
+    final http.Response response = await http.post(
+        'https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyPassword?key=AIzaSyD4ALED54U2Jq5WJerIzmxeA947ofLSGes',
+        body: json.encode(authData),
+        headers: {
+          'Content-Type': 'application/json',
+        });
+
+    final Map<String, dynamic> responseData = json.decode(response.body);
+
+    bool hasError = true;
+    String message = 'something went wrong';
+    if (responseData.containsKey('idToken')) {
+      hasError = false;
+      message = 'Authentication Succeeded';
+    } else if (responseData['error']['message'] == 'EMAIL_NOT_FOUND') {
+      message = 'Email does not exist';
+    } else if (responseData['error']['message'] == 'INVALID_PASSWORD') {
+      message = 'Invalid Password';
+    }
+    _isLoading = false;
+    notifyListeners();
+    return {'success': !hasError, 'message': message};
+  }
+
+  Future<Map<String, dynamic>> signup(String email, String password) async {
+    _isLoading = true;
+    notifyListeners();
+    final Map<String, dynamic> authData = {
+      'email': email,
+      'password': password,
+      'returnSecureToken': true
+    };
+    final http.Response response = await http.post(
+        'https://www.googleapis.com/identitytoolkit/v3/relyingparty/signupNewUser?key=AIzaSyD4ALED54U2Jq5WJerIzmxeA947ofLSGes',
+        body: json.encode(authData),
+        headers: {
+          'Content-Type': 'application/json',
+        });
+    final Map<String, dynamic> responseData = json.decode(response.body);
+    bool hasError = true;
+    String message = 'something went wrong';
+    if (responseData.containsKey('idToken')) {
+      hasError = false;
+      message = 'Authentication Succeeded';
+    } else if (responseData['error']['message'] == 'EMAIL_EXISTS') {
+      message = 'Email exists';
+    }
+    _isLoading = false;
+    notifyListeners();
+    return {'success': !hasError, 'message': message};
   }
 }
 

@@ -1,171 +1,174 @@
 import 'package:flutter/material.dart';
+
 import 'package:scoped_model/scoped_model.dart';
+
 import '../scoped-models/main.dart';
 
-/* 
-A StatelessWidget will never rebuild by itself (but can from external events). A StatefulWidget can. That is the golden rule.
+enum AuthMode { Signup, Login }
 
-BUT any kind of widget can be repainted any times.
-
-Stateless only means that all of its properties are immutable and that the only way to change them is to create a new instance of that widget. It doesn't e.g. lock the widget tree. */
-
-///in this case, we definitely need to use setState for SwitchListTile (accept terms) to show the status right away
-class Auth extends StatefulWidget {
+class AuthPage extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
-    return AuthState();
+    return _AuthPageState();
   }
 }
 
-class AuthState extends State<Auth> {
-  Map<String, dynamic> _formValues = {
-    "email": null,
-    "password": null,
-    "acceptTerms": true,
+class _AuthPageState extends State<AuthPage> {
+  AuthMode _authMode = AuthMode.Login;
+  final Map<String, dynamic> _formData = {
+    'email': null,
+    'password': null,
+    'acceptTerms': true
   };
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
-  @override
-  Widget build(BuildContext context) {
-    final double deviceWidth = MediaQuery.of(context).size.width;
-    final double targetWidth = deviceWidth > 550.0 ? 500.0 : deviceWidth * 0.95;
-
-    return Scaffold(
-        appBar: AppBar(
-          title: Text("LOG IN!"),
-        ),
-        body: Container(
-          decoration: BoxDecoration(            
-            image: _buildBackgroundImage(),
-          ),
-          padding: EdgeInsets.all(10.0),
-          child: Form(
-            key: _formKey,
-            child: Center(
-              child: SingleChildScrollView(
-                child: Container(
-                  width: targetWidth,
-                  child: Column(
-                    children: <Widget>[
-                      _buildEmailTextField(),
-                      SizedBox(
-                        height: 10.0,
-                      ),
-                      _buildPasswordTextField(),
-                      _buildTermsCheckbox(),
-                      SizedBox(
-                        height: 20.0,
-                      ),
-                      ScopedModelDescendant(
-                        builder: (BuildContext context, Widget child,
-                            MainModel model) {
-                          return RaisedButton(
-                            child: Text("Login"),
-                            onPressed: () => submit(context, model.login),
-                          );
-                        },
-                      )
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ));
-  }
-
+  final TextEditingController _passwordTextController = TextEditingController();
   DecorationImage _buildBackgroundImage() {
     return DecorationImage(
-      image: AssetImage('assets/background.jpg'),
-      colorFilter:
-          ColorFilter.mode(Colors.white.withOpacity(0.3), BlendMode.dstATop),
       fit: BoxFit.cover,
+      colorFilter:
+          ColorFilter.mode(Colors.black.withOpacity(0.5), BlendMode.dstATop),
+      image: AssetImage('assets/background.jpg'),
     );
   }
 
   Widget _buildEmailTextField() {
     return TextFormField(
-      onSaved: (value) {
-        _formValues["email"] = value;
-      },
+      decoration: InputDecoration(
+          labelText: 'E-Mail', filled: true, fillColor: Colors.white),
+      keyboardType: TextInputType.emailAddress,
       initialValue: "test@test.com",
-      validator: (value) {
+      validator: (String value) {
         if (value.isEmpty ||
             !RegExp(r"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?")
                 .hasMatch(value)) {
-          return "invalid email";
+          return 'Please enter a valid email';
         }
       },
-      keyboardType: TextInputType.emailAddress,
+      onSaved: (String value) {
+        _formData['email'] = value;
+      },
+    );
+  }
+
+  Widget _buildPasswordConfirmTextField() {
+    return TextFormField(
       decoration: InputDecoration(
-        labelText: "Email",
-        hintText: "you@test.com",
-        filled: true,
-        fillColor: Colors.white,
-        icon: Icon(Icons.email),
-      ),
+          labelText: 'Confirm Password', filled: true, fillColor: Colors.white),
+      obscureText: true, 
+      validator: (String value) {
+        if (_passwordTextController.text != value) {
+          return 'Passwords do not match';
+        }
+      },
+      onSaved: (String value) {
+        _formData['email'] = value;
+      },
     );
   }
 
   Widget _buildPasswordTextField() {
     return TextFormField(
-      onSaved: (value) {
-        _formValues["password"] = value;
-      },
-      validator: (value) {
-        if (value.isEmpty) {
-          return "invalid password";
+      decoration: InputDecoration(
+          labelText: 'Password', filled: true, fillColor: Colors.white),
+      obscureText: true,
+      controller: _passwordTextController, 
+      validator: (String value) {
+        if (value.isEmpty || value.length < 6) {
+          return 'Password invalid';
         }
       },
-      obscureText: true,
-      initialValue: "Password123",
-      decoration: InputDecoration(
-        labelText: "Password",
-        filled: true,
-        fillColor: Colors.white,
-        hintText: "Password",
-        icon: Icon(Icons.security),
-      ),
+      onSaved: (String value) {
+        _formData['password'] = value;
+      },
     );
   }
 
-  Widget _buildTermsCheckbox() {
+  Widget _buildAcceptSwitch() {
     return SwitchListTile(
-      value: _formValues["acceptTerms"],
-      onChanged: (value) {
+      value: _formData['acceptTerms'],
+      onChanged: (bool value) {
         setState(() {
-          _formValues["acceptTerms"] = value;
+          _formData['acceptTerms'] = value;
         });
       },
-      title: Text("Accept Terms"),
+      title: Text('Accept Terms'),
     );
   }
 
-  void submit(BuildContext context, Function loginFunction) {
-    if (_formKey.currentState.validate()) {
-      if (!_formValues["acceptTerms"]) {
-        showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              title: Text("Accept the terms idiot!"),
-              content: Text("Stupid!"),
-              actions: <Widget>[
-                IconButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  icon: Icon(Icons.thumb_up),
-                )
-              ],
-            );
-          },
-        );
-      } else {
-        _formKey.currentState.save();
-        loginFunction(_formValues["email"], _formValues["password"]);
-        Navigator.pushReplacementNamed(context, "/products");
-      }
+  void _submitForm(Function login) {
+    if (!_formKey.currentState.validate() || !_formData['acceptTerms']) {
+      return;
     }
+    _formKey.currentState.save();
+    login(_formData['email'], _formData['password']);
+    Navigator.pushReplacementNamed(context, '/products');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final double deviceWidth = MediaQuery.of(context).size.width;
+    final double targetWidth = deviceWidth > 550.0 ? 500.0 : deviceWidth * 0.95;
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Login'),
+      ),
+      body: Container(
+        decoration: BoxDecoration(
+          image: _buildBackgroundImage(),
+        ),
+        padding: EdgeInsets.all(10.0),
+        child: Center(
+          child: SingleChildScrollView(
+            child: Container(
+              width: targetWidth,
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  children: <Widget>[
+                    _buildEmailTextField(),
+                    SizedBox(
+                      height: 10.0,
+                    ),
+                    _buildPasswordTextField(),
+                    SizedBox(
+                      height: 10.0,
+                    ),
+                    _authMode == AuthMode.Signup? _buildPasswordConfirmTextField(): Container(),
+                    _buildAcceptSwitch(),
+                    SizedBox(
+                      height: 10.0,
+                    ),
+                    FlatButton(
+                      onPressed: () {
+                        setState(() {
+                          _authMode = _authMode == AuthMode.Login
+                              ? AuthMode.Signup
+                              : AuthMode.Login;
+                        });
+                      },
+                      child: Text(
+                          "Switch to ${_authMode == AuthMode.Login ? 'Signup' : 'Login'}"),
+                    ),
+                    SizedBox(
+                      height: 10.0,
+                    ),
+                    ScopedModelDescendant<MainModel>(
+                      builder: (BuildContext context, Widget child,
+                          MainModel model) {
+                        return RaisedButton(
+                          textColor: Colors.white,
+                          child: Text('LOGIN'),
+                          onPressed: () => _submitForm(model.login),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

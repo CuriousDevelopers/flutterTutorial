@@ -7,19 +7,36 @@ import '../scoped-models/main.dart';
 
 class ProductListPage extends StatefulWidget {
   final MainModel model;
+
   ProductListPage(this.model);
 
   @override
-  State<StatefulWidget> createState() {
-    return ProductListPageState();
-  }
+    State<StatefulWidget> createState() {
+      return _ProductListPageState();
+    }
 }
 
-class ProductListPageState extends State<ProductListPage> {
+class _ProductListPageState extends State<ProductListPage> {
   @override
   initState() {
     widget.model.fetchProducts();
     super.initState();
+  }
+
+  Widget _buildEditButton(BuildContext context, int index, MainModel model) {
+    return IconButton(
+      icon: Icon(Icons.edit),
+      onPressed: () {
+        model.selectProduct(model.allProducts[index].id);
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (BuildContext context) {
+              return ProductEditPage();
+            },
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -27,13 +44,12 @@ class ProductListPageState extends State<ProductListPage> {
     return ScopedModelDescendant<MainModel>(
       builder: (BuildContext context, Widget child, MainModel model) {
         return ListView.builder(
-          itemCount: model.allProducts.length,
           itemBuilder: (BuildContext context, int index) {
             return Dismissible(
               key: Key(model.allProducts[index].title),
               onDismissed: (DismissDirection direction) {
                 if (direction == DismissDirection.endToStart) {
-                  model.selectProduct(index);
+                  model.selectProduct(model.allProducts[index].id);
                   model.deleteProduct();
                 } else if (direction == DismissDirection.startToEnd) {
                   print('Swiped start to end');
@@ -59,26 +75,8 @@ class ProductListPageState extends State<ProductListPage> {
               ),
             );
           },
+          itemCount: model.allProducts.length,
         );
-      },
-    );
-  }
-
-  Widget _buildEditButton(BuildContext context, int index, MainModel model) {
-    return IconButton(
-      icon: Icon(Icons.edit),
-      onPressed: () {
-        model.selectProduct(index);
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (BuildContext context) {
-              return ProductEditPage();
-            },
-          ),
-        ).then((_) {
-          ///this is to make sure that there wont be any selection when the user clicks back button in the edit page
-          model.selectProduct(null);
-        });
       },
     );
   }

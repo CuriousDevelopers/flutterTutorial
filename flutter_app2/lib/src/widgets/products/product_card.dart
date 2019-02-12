@@ -14,26 +14,6 @@ class ProductCard extends StatelessWidget {
 
   ProductCard(this.product, this.productIndex);
 
- @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Column(
-        children: <Widget>[
-          FadeInImage(
-            image: NetworkImage(product.image),
-            placeholder: AssetImage('assets/food.jpg'),
-            height: 300.0,
-            fit: BoxFit.cover,
-          ),
-          _buildTitlePriceRow(),
-          AddressTag('Union Square, San Francisco'),
-          Text(product.userEmail),
-          _buildActionButtons(context)
-        ],
-      ),
-    );
-  }
-
   Widget _buildTitlePriceRow() {
     return Container(
       padding: EdgeInsets.only(top: 10.0),
@@ -54,31 +34,48 @@ class ProductCard extends StatelessWidget {
     return ScopedModelDescendant<MainModel>(
       builder: (BuildContext context, Widget child, MainModel model) {
         return ButtonBar(
-          alignment: MainAxisAlignment.center,
-          children: <Widget>[
-            IconButton(
-              icon: Icon(Icons.info),
-              color: Theme.of(context).accentColor,
-              onPressed: () {
-                model.selectProduct(productIndex);
-                Navigator.pushNamed<bool>(
-                    context, '/product/' + productIndex.toString());
-              },
-            ),
-            IconButton(
-              icon: Icon(
-                  product.isFavorite ? Icons.favorite : Icons.favorite_border),
-              color: Colors.red,
-              onPressed: () {
-                model.selectProduct(productIndex);
-                model.toggleProductFavoriteStatus();
-              },
-            ),
-          ],
-        );
+            alignment: MainAxisAlignment.center,
+            children: <Widget>[
+              IconButton(
+                icon: Icon(Icons.info),
+                color: Theme.of(context).accentColor,
+                onPressed: () => Navigator
+                        .pushNamed<bool>(context,
+                            '/product/' + model.allProducts[productIndex].id),
+              ),
+              IconButton(
+                icon: Icon(model.allProducts[productIndex].isFavorite
+                    ? Icons.favorite
+                    : Icons.favorite_border),
+                color: Colors.red,
+                onPressed: () {
+                  model.selectProduct(model.allProducts[productIndex].id);
+                  model.toggleProductFavoriteStatus();
+                },
+              ),
+            ]);
       },
     );
   }
 
- 
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Column(
+        children: <Widget>[
+          FadeInImage(
+            image: NetworkImage(product.image),
+            height: 300.0,
+            fit: BoxFit.cover,
+            placeholder: AssetImage('assets/food.jpg'),
+          ),
+          _buildTitlePriceRow(),
+          AddressTag('Union Square, San Francisco'),
+          Text(product.userEmail),
+          _buildActionButtons(context)
+        ],
+      ),
+    );
+    ;
+  }
 }

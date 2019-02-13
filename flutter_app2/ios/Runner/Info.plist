@@ -40,6 +40,8 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
-	<false/>
+	<false/>	
+	<key>NSLocationWhenInUseUsageDescription</key>
+    <string>Using location is required to locate product</string>
 </dict>
 </plist>

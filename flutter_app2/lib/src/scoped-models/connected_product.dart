@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:rxdart/subjects.dart';
 
 import '../models/product.dart';
 import '../models/user.dart';
@@ -154,7 +155,7 @@ mixin ProductsModel on ConnectedProductsModel {
     });
   }
 
-  Future<Null> fetchProducts() {
+  Future<Null> fetchProducts({onlyForUser = false}) {
     _isLoading = true;
     notifyListeners();
     return http
@@ -176,10 +177,19 @@ mixin ProductsModel on ConnectedProductsModel {
             image: productData['image'],
             price: productData['price'],
             userEmail: productData['userEmail'],
-            userId: productData['userId']);
+            userId: productData['userId'],
+            isFavorite: productData['wishlistUsers'] == null
+                ? false
+                : (productData['wishlistUsers'] as Map<String, dynamic>)
+                    .containsKey(_authenticatedUser.id));
         fetchedProductList.add(product);
       });
-      _products = fetchedProductList;
+      if (onlyForUser)
+        _products = fetchedProductList
+            .where((Product product) => product.userId == _authenticatedUser.id)
+            .toList();
+      else
+        _products = fetchedProductList;
       _isLoading = false;
       notifyListeners();
       _selProductId = null;
@@ -190,9 +200,21 @@ mixin ProductsModel on ConnectedProductsModel {
     });
   }
 
-  void toggleProductFavoriteStatus() {
+  void toggleProductFavoriteStatus() async {
     final bool isCurrentlyFavorite = selectedProduct.isFavorite;
     final bool newFavoriteStatus = !isCurrentlyFavorite;
+    if (newFavoriteStatus) {
+      final http.Response response = await http.put(
+          'https://flutter-products-4e805.firebaseio.com/products/${selectedProduct.id}/wishlistUsers/${_authenticatedUser.id}.json?auth=${_authenticatedUser.token}',
+          body: json.encode(true));
+
+      if (response.statusCode != 200 && response.statusCode != 201) {}
+    } else {
+      final http.Response response = await http.delete(
+          'https://flutter-products-4e805.firebaseio.com/products/${selectedProduct.id}/wishlistUsers/${_authenticatedUser.id}.json?auth=${_authenticatedUser.token}');
+
+      if (response.statusCode != 200 && response.statusCode != 201) {}
+    }
     final Product updatedProduct = Product(
         id: selectedProduct.id,
         title: selectedProduct.title,
@@ -220,6 +242,11 @@ mixin ProductsModel on ConnectedProductsModel {
 mixin UserModel on ConnectedProductsModel {
   User get user => _authenticatedUser;
   Timer _authTimer;
+  PublishSubject<bool> _userSubject = PublishSubject();
+  PublishSubject<bool> get userSubject => _userSubject;
+//sink
+
+//stream
 
   Future<Map<String, dynamic>> authenticate(String email, String password,
       [AuthMode mode = AuthMode.Login]) async {
@@ -264,6 +291,8 @@ mixin UserModel on ConnectedProductsModel {
       //Get the timeout information from firebase and set the expiration time
       setAuthTimeout(int.parse(responseData['expiresIn']));
 
+      _userSubject.add(true);
+
       //don't store the amount of time. store the time when its going to expire
       final now = DateTime.now();
       final DateTime expiryTime =
@@ -307,6 +336,7 @@ mixin UserModel on ConnectedProductsModel {
       final String userId = prefs.getString("userId");
       final int tokenLifespan = parsedExpiryTime.difference(now).inSeconds;
       _authenticatedUser = User(email: userEmail, token: token, id: userId);
+      _userSubject.add(true);
       setAuthTimeout(tokenLifespan);
       notifyListeners();
     }
@@ -321,11 +351,15 @@ mixin UserModel on ConnectedProductsModel {
     prefs.remove('userEmail');
     prefs.remove('userId');
     prefs.remove('expiryTime');
-    notifyListeners();
+    _userSubject.add(false);
   }
 
   void setAuthTimeout(int time) {
-    _authTimer = Timer(Duration(milliseconds: time * 10), logout);
+    _authTimer = Timer(Duration(seconds: time), logout);
+  }
+
+  void dispose() {
+    _userSubject.close();
   }
 }
 

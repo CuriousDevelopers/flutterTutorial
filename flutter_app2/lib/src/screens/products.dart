@@ -55,7 +55,10 @@ class _ProductsPageState extends State<ProductsPage> {
         } else if (model.isLoading) {
           content = Center(child: CircularProgressIndicator());
         }
-        return RefreshIndicator(onRefresh: model.fetchProducts, child: content,) ;
+        return RefreshIndicator(
+          onRefresh: model.fetchProducts,
+          child: content,
+        );
       },
     );
   }
@@ -78,10 +81,78 @@ class _ProductsPageState extends State<ProductsPage> {
                 },
               );
             },
+          ),
+          IconButton(
+            icon: Icon(Icons.search),
+            onPressed: () {
+              showSearch(context: context, delegate: ProductSearch());
+            },
           )
         ],
       ),
       body: _buildProductsList(),
+    );
+  }
+}
+
+class ProductSearch extends SearchDelegate<String> {
+  @override
+  List<Widget> buildActions(BuildContext context) {
+    return <Widget>[
+      IconButton(
+        icon: Icon(Icons.clear),
+        onPressed: () {
+          query = "";
+        },
+      )
+    ];
+  }
+
+  @override
+  Widget buildLeading(BuildContext context) {
+    return IconButton(
+      icon: AnimatedIcon(
+        icon: AnimatedIcons.arrow_menu,
+        progress: transitionAnimation,
+      ),
+      onPressed: () {
+        close(context, null);
+      },
+    );
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    // TODO: implement buildResults
+    return null;
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    // TODO: implement buildSuggestions
+    return ScopedModelDescendant<MainModel>(
+      builder: (BuildContext context, Widget child, MainModel model) {
+        final suggestionList = query.isEmpty
+            ? model.allProducts
+            : model.allProducts
+                .where((p) =>
+                    p.title.toLowerCase().startsWith(query.toLowerCase()))
+                .toList();
+
+        return ListView.builder(
+          itemCount: suggestionList.length,
+          itemBuilder: (BuildContext context, int index) {
+            return ListTile(
+              onTap: () {
+                Navigator.of(context).pushReplacementNamed(
+                    '/product/${suggestionList[index].id}');
+              },
+              leading: Icon(Icons.insert_emoticon),
+              title: Text(suggestionList[index].title),
+            );
+          },
+        );
+      },
     );
   }
 }

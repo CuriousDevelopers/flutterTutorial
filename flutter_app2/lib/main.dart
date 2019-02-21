@@ -11,7 +11,6 @@ import './src/screens/product.dart';
 import './src/scoped-models/main.dart';
 import './src/models/product.dart';
 
-
 void main() {
   // debugPaintSizeEnabled = true;
   // debugPaintBaselinesEnabled = true;
@@ -86,7 +85,8 @@ class _MyAppState extends State<MyApp> {
         },
         onUnknownRoute: (RouteSettings settings) {
           return MaterialPageRoute(
-              builder: (BuildContext context) => ProductsPage(_model));
+              builder: (BuildContext context) =>
+                  !_isAuthenticated ? AuthPage() : ProductsPage(_model));
         },
       ),
     );

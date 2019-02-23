@@ -18,7 +18,7 @@ class ProductPage extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
         Text(
-          'Union Square, San Francisco',
+          product.location.address,
           style: TextStyle(fontFamily: 'Oswald', color: Colors.grey),
         ),
         Container(

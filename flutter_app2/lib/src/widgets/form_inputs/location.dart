@@ -16,7 +16,6 @@ class LocationInputState extends State<LocationInput> {
   @override
   void initState() {
     _addressInputFocusNode.addListener(_updateLocation);
-    getStaticMap();
     super.initState();
   }
 
@@ -35,7 +34,11 @@ class LocationInputState extends State<LocationInput> {
     });
   }
 
-  void _updateLocation() {}
+  void _updateLocation() {
+    if (!_addressInputFocusNode.hasFocus) {
+      getStaticMap();
+    }
+  }
 
   @override
   void dispose() {

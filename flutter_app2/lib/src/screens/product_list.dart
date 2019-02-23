@@ -46,7 +46,7 @@ class _ProductListPageState extends State<ProductListPage> {
         return ListView.builder(
           itemBuilder: (BuildContext context, int index) {
             return Dismissible(
-              key: Key(model.allProducts[index].title),
+              key: Key(model.allProducts[index].id),
               onDismissed: (DismissDirection direction) {
                 if (direction == DismissDirection.endToStart) {
                   model.selectProduct(model.allProducts[index].id);

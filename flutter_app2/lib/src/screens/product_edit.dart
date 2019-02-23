@@ -32,7 +32,9 @@ class _ProductEditPageState extends State<ProductEditPage> {
       child: TextFormField(
         focusNode: _titleFocusNode,
         decoration: InputDecoration(labelText: 'Product Title'),
-        initialValue: product == null ? 'Chocolate Cake' : product.title,
+
+        // initialValue: product == null ? 'Chocolate Cake' : product.title,
+        initialValue: product == null ? '' : product.title,
         validator: (String value) {
           // if (value.trim().length <= 0) {
           if (value.isEmpty || value.length < 5) {
@@ -54,7 +56,8 @@ class _ProductEditPageState extends State<ProductEditPage> {
         maxLines: 4,
         decoration: InputDecoration(labelText: 'Product Description'),
         initialValue: product == null
-            ? 'Its Chocolate cake. Do you really need a description?'
+            // ? 'Its Chocolate cake. Do you really need a description?'
+            ? ''
             : product.description,
         validator: (String value) {
           // if (value.trim().length <= 0) {
@@ -76,7 +79,7 @@ class _ProductEditPageState extends State<ProductEditPage> {
         focusNode: _priceFocusNode,
         keyboardType: TextInputType.number,
         decoration: InputDecoration(labelText: 'Product Price'),
-        initialValue: product == null ? '2.29' : product.price.toString(),
+        initialValue: product == null ? '' : product.price.toString(),
         validator: (String value) {
           // if (value.trim().length <= 0) {
           if (value.isEmpty ||
@@ -134,15 +137,7 @@ class _ProductEditPageState extends State<ProductEditPage> {
               SizedBox(
                 height: 10.0,
               ),
-              _buildSubmitButton(),
-              // GestureDetector(
-              //   onTap: _submitForm,
-              //   child: Container(
-              //     color: Colors.green,
-              //     padding: EdgeInsets.all(5.0),
-              //     child: Text('My Button'),
-              //   ),
-              // )
+              _buildSubmitButton(), 
             ],
           ),
         ),

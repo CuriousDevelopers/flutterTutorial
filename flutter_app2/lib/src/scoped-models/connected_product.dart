@@ -103,8 +103,8 @@ mixin ProductsModel on ConnectedProductsModel {
     }
   }
 
-  Future<bool> updateProduct(
-      String title, String description, String image, double price) {
+  Future<bool> updateProduct(String title, String description, String image,
+      double price, LocationData locData) {
     _isLoading = true;
     notifyListeners();
     final Map<String, dynamic> updateData = {
@@ -114,7 +114,10 @@ mixin ProductsModel on ConnectedProductsModel {
           'https://upload.wikimedia.org/wikipedia/commons/6/68/Chocolatebrownie.JPG',
       'price': price,
       'userEmail': selectedProduct.userEmail,
-      'userId': selectedProduct.userId
+      'userId': selectedProduct.userId,
+      'loc_address': locData.address,
+      'loc_lat': locData.latitude,
+      'loc_lng': locData.longitude,
     };
     return http
         .put(
@@ -129,6 +132,7 @@ mixin ProductsModel on ConnectedProductsModel {
           image: image,
           price: price,
           userEmail: selectedProduct.userEmail,
+          location: locData,
           userId: selectedProduct.userId);
       _products[selectedProductIndex] = updatedProduct;
       notifyListeners();
@@ -232,6 +236,7 @@ mixin ProductsModel on ConnectedProductsModel {
         image: selectedProduct.image,
         userEmail: selectedProduct.userEmail,
         userId: selectedProduct.userId,
+        location: selectedProduct.location,
         isFavorite: newFavoriteStatus);
     _products[selectedProductIndex] = updatedProduct;
     notifyListeners();

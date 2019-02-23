@@ -27,16 +27,29 @@ class _ProductEditPageState extends State<ProductEditPage> {
   final _titleFocusNode = FocusNode();
   final _descriptionFocusNode = FocusNode();
   final _priceFocusNode = FocusNode();
+  final _titleTextController = TextEditingController();
 
   Widget _buildTitleTextField(Product product) {
+    if (product == null && _titleTextController.text == '') {
+      _titleTextController.text = '';
+    } else if (product != null && _titleTextController.text == '') {
+      _titleTextController.text = product.title;
+    } else if (product != null && _titleTextController.text != '') {
+      _titleTextController.text = _titleTextController.text;
+    } else if (product == null && _titleTextController.text != '') {
+      _titleTextController.text = _titleTextController.text;
+    } else {
+      _titleTextController.text = '';
+    }
     return EnsureVisibleWhenFocused(
       focusNode: _titleFocusNode,
       child: TextFormField(
+        controller: _titleTextController,
         focusNode: _titleFocusNode,
         decoration: InputDecoration(labelText: 'Product Title'),
 
         // initialValue: product == null ? 'Chocolate Cake' : product.title,
-        initialValue: product == null ? '' : product.title,
+        // initialValue: product == null ? '' : product.title,
         validator: (String value) {
           // if (value.trim().length <= 0) {
           if (value.isEmpty || value.length < 5) {
@@ -160,11 +173,11 @@ class _ProductEditPageState extends State<ProductEditPage> {
     _formKey.currentState.save();
     if (selectedProductIndex == -1) {
       addProduct(
-        _formData['title'],
+        _titleTextController.text,
         _formData['description'],
         _formData['image'],
         _formData['price'],
-        _formData['location']
+        _formData['location'],
       ).then((bool success) {
         if (success)
           Navigator.pushReplacementNamed(context, '/')
@@ -190,10 +203,11 @@ class _ProductEditPageState extends State<ProductEditPage> {
       });
     } else {
       updateProduct(
-        _formData['title'],
+        _titleTextController.text,
         _formData['description'],
         _formData['image'],
         _formData['price'],
+        _formData['location'],
       ).then((_) => Navigator.pushReplacementNamed(context, '/products')
           .then((_) => setSelectedProduct(null)));
     }

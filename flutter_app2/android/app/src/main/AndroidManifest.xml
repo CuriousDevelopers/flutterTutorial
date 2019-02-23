@@ -32,7 +32,7 @@
             <meta-data
                 android:name="io.flutter.app.android.SplashScreenUntilFirstFrame"
                 android:value="true" />
-                <meta-data android:name="com.google.android.maps.v2.API_KEY" android:value="AIzaSyAr_gu2gL1bGvg_pij6ySySP7srJQzNezQ"/>
+                <meta-data android:name="com.google.android.maps.v2.API_KEY" android:value="superdupertestkeysuperdupertestkeysuper"/>
                 <meta-data android:name="com.google.android.gms.version" android:value="@integer/google_play_services_version"/>
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>

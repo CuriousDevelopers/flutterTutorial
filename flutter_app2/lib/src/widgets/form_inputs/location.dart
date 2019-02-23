@@ -21,7 +21,7 @@ class LocationInputState extends State<LocationInput> {
 
   void getStaticMap() {
     final StaticMapProvider staticMapViewProvider =
-        StaticMapProvider('AIzaSyAr_gu2gL1bGvg_pij6ySySP7srJQzNezQ');
+        StaticMapProvider('AIzaSyAKQsFoC04XnS7vTpzgRgsNmr11bsX_oEs');
     final Uri staticMapUri = staticMapViewProvider.getStaticUriWithMarkers(
       [Marker('position', 'Position', 44.85308, -93.23809)],
       center: Location(44.85308, -93.23809),

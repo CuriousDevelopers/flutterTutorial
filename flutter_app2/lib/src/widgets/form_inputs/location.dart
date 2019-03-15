@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:map_view/map_view.dart';
@@ -45,11 +46,12 @@ class LocationInputState extends State<LocationInput> {
       widget.setLocation(null);
       return;
     }
+
     if (geocode) {
       final Uri uri =
           Uri.https('maps.googleapis.com', '/maps/api/geocode/json', {
         "address": address,
-        "key": "superdupertestkeysuperdupertestkeysuper",
+        "key": "superduperdancepartysuperduperdancepartys",
       });
       final http.Response response = await http.get(uri);
       final decodedResponse = json.decode(response.body);
@@ -67,23 +69,26 @@ class LocationInputState extends State<LocationInput> {
           LocationData(address: address, latitude: lat, longitude: lng);
     }
 
-    final StaticMapProvider staticMapViewProvider =
-        StaticMapProvider('superdupertestkeysuperdupertestkeysuper');
-    final Uri staticMapUri = staticMapViewProvider.getStaticUriWithMarkers(
-      [
-        Marker('position', 'Position', _locationData.latitude,
-            _locationData.longitude)
-      ],
-      center: Location(_locationData.latitude, _locationData.longitude),
-      width: 500,
-      height: 300,
-      maptype: StaticMapViewType.terrain,
-    );
-    widget.setLocation(_locationData);
-    setState(() {
-      _addressInputController.text = _locationData.address;
-      _staticMapUri = staticMapUri;
-    });
+    //This is to make sure we dont use google apis if notifyListeners() called
+    if (mounted) {
+      final StaticMapProvider staticMapViewProvider =
+          StaticMapProvider('superduperdancepartysuperduperdancepartys');
+      final Uri staticMapUri = staticMapViewProvider.getStaticUriWithMarkers(
+        [
+          Marker('position', 'Position', _locationData.latitude,
+              _locationData.longitude)
+        ],
+        center: Location(_locationData.latitude, _locationData.longitude),
+        width: 500,
+        height: 300,
+        maptype: StaticMapViewType.roadmap,
+      );
+      widget.setLocation(_locationData);
+      setState(() {
+        _addressInputController.text = _locationData.address;
+        _staticMapUri = staticMapUri;
+      });
+    }
   }
 
   void _updateLocation() {
@@ -101,7 +106,7 @@ class LocationInputState extends State<LocationInput> {
   Future<String> _getAddress(double lat, double lng) async {
     final Uri uri = Uri.https('maps.googleapis.com', '/maps/api/geocode/json', {
       "latlng": '${lat.toString()},${lng.toString()}',
-      "key": "superdupertestkeysuperdupertestkeysuper",
+      "key": "superduperdancepartysuperduperdancepartys",
     });
 
     final http.Response response = await http.get(uri);
@@ -114,13 +119,12 @@ class LocationInputState extends State<LocationInput> {
   void _getUserLocation() async {
     final location = geoloc.Location();
     final currentLocation = await location.getLocation();
-    final address =
-        await _getAddress(currentLocation.latitude, currentLocation.longitude);
-
+    final address = await _getAddress(
+        currentLocation['latitude'], currentLocation['longitude']);
     _getStaticMap(address,
         geocode: false,
-        lat: currentLocation.latitude,
-        lng: currentLocation.longitude);
+        lat: currentLocation['latitude'],
+        lng: currentLocation['longitude']);
   }
 
   @override

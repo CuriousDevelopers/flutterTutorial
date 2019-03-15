@@ -3,10 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 import '../widgets/helpers/ensure_visible.dart';
+import '../widgets/form_inputs/location.dart';
+import '../widgets/form_inputs/image.dart';
 import '../models/product.dart';
 import '../models/location_data.dart';
 import '../scoped-models/main.dart';
-import '../widgets/form_inputs/location.dart';
 
 class ProductEditPage extends StatefulWidget {
   @override
@@ -27,7 +28,10 @@ class _ProductEditPageState extends State<ProductEditPage> {
   final _titleFocusNode = FocusNode();
   final _descriptionFocusNode = FocusNode();
   final _priceFocusNode = FocusNode();
+
+  //using texteditingcontroller will make the form field retain its value if its scrolled out of view
   final _titleTextController = TextEditingController();
+  final _descriptionTextController = TextEditingController();
 
   Widget _buildTitleTextField(Product product) {
     if (product == null && _titleTextController.text == '') {
@@ -64,16 +68,19 @@ class _ProductEditPageState extends State<ProductEditPage> {
   }
 
   Widget _buildDescriptionTextField(Product product) {
+    if (product == null && _descriptionTextController.text == '') {
+      _descriptionTextController.text = '';
+    } else if (product != null && _descriptionTextController.text == '') {
+      _descriptionTextController.text = product.title;
+    }  
+
     return EnsureVisibleWhenFocused(
       focusNode: _descriptionFocusNode,
       child: TextFormField(
+        controller: _descriptionTextController,
         focusNode: _descriptionFocusNode,
         maxLines: 4,
         decoration: InputDecoration(labelText: 'Product Description'),
-        initialValue: product == null
-            // ? 'Its Chocolate cake. Do you really need a description?'
-            ? ''
-            : product.description,
         validator: (String value) {
           // if (value.trim().length <= 0) {
           if (value.isEmpty || value.length < 10) {
@@ -152,6 +159,10 @@ class _ProductEditPageState extends State<ProductEditPage> {
               SizedBox(
                 height: 10.0,
               ),
+              ImageInput(),
+              SizedBox(
+                height: 10.0,
+              ),
               _buildSubmitButton(),
             ],
           ),
@@ -174,7 +185,7 @@ class _ProductEditPageState extends State<ProductEditPage> {
     if (selectedProductIndex == -1) {
       addProduct(
         _titleTextController.text,
-        _formData['description'],
+        _descriptionTextController.text,
         _formData['image'],
         _formData['price'],
         _formData['location'],
@@ -204,7 +215,7 @@ class _ProductEditPageState extends State<ProductEditPage> {
     } else {
       updateProduct(
         _titleTextController.text,
-        _formData['description'],
+        _descriptionTextController.text,
         _formData['image'],
         _formData['price'],
         _formData['location'],

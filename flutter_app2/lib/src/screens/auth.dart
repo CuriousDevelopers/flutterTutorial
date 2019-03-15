@@ -21,106 +21,6 @@ class _AuthPageState extends State<AuthPage> {
   };
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _passwordTextController = TextEditingController();
-  DecorationImage _buildBackgroundImage() {
-    return DecorationImage(
-      fit: BoxFit.cover,
-      colorFilter:
-          ColorFilter.mode(Colors.black.withOpacity(0.5), BlendMode.dstATop),
-      image: AssetImage('assets/background.jpg'),
-    );
-  }
-
-  Widget _buildEmailTextField() {
-    return TextFormField(
-      decoration: InputDecoration(
-          labelText: 'E-Mail', filled: true, fillColor: Colors.white),
-      keyboardType: TextInputType.emailAddress,
-      initialValue: "test@test.com",
-      validator: (String value) {
-        if (value.isEmpty ||
-            !RegExp(r"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?")
-                .hasMatch(value)) {
-          return 'Please enter a valid email';
-        }
-      },
-      onSaved: (String value) {
-        _formData['email'] = value;
-      },
-    );
-  }
-
-  Widget _buildPasswordConfirmTextField() {
-    return TextFormField(
-        decoration: InputDecoration(
-            labelText: 'Confirm Password',
-            filled: true,
-            fillColor: Colors.white),
-        obscureText: true,
-        validator: (String value) {
-          if (_passwordTextController.text != value) {
-            return 'Passwords do not match';
-          }
-        });
-  }
-
-  Widget _buildPasswordTextField() {
-    return TextFormField(
-      decoration: InputDecoration(
-          labelText: 'Password', filled: true, fillColor: Colors.white),
-      obscureText: true,
-      controller: _passwordTextController,
-      validator: (String value) {
-        if (value.isEmpty || value.length < 6) {
-          return 'Password invalid';
-        }
-      },
-      onSaved: (String value) {
-        _formData['password'] = value;
-      },
-    );
-  }
-
-  Widget _buildAcceptSwitch() {
-    return SwitchListTile(
-      value: _formData['acceptTerms'],
-      onChanged: (bool value) {
-        setState(() {
-          _formData['acceptTerms'] = value;
-        });
-      },
-      title: Text('Accept Terms'),
-    );
-  }
-
-  void _submitForm(Function authenticate) async {
-    if (!_formKey.currentState.validate() || !_formData['acceptTerms']) {
-      return;
-    }
-    _formKey.currentState.save();
-    Map<String, dynamic> successInformation = await authenticate(
-        _formData['email'], _formData['password'], _authMode);
-
-    if (successInformation['success']) {
-      // Navigator.pushReplacementNamed(context, '/');
-    } else {
-      showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text('Error occurred'),
-              content: Text(successInformation['message']),
-              actions: <Widget>[
-                FlatButton(
-                  child: Text('Okay'),
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                )
-              ],
-            );
-          });
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -176,15 +76,16 @@ class _AuthPageState extends State<AuthPage> {
                       builder: (BuildContext context, Widget child,
                           MainModel model) {
                         return model.isLoading
-                            ? CircularProgressIndicator()
+                            ? LinearProgressIndicator()
                             : RaisedButton(
                                 textColor: Colors.white,
                                 child: _authMode == AuthMode.Login
                                     ? Text('LOGIN')
                                     : Text('SIGNUP'),
-                                onPressed: () =>
-                                    _submitForm(model.authenticate),
-                              );
+                                onPressed: () {
+                                  _submitForm(model.authenticate);
+                                  print('you idiot');
+                                });
                       },
                     ),
                   ],
@@ -195,5 +96,112 @@ class _AuthPageState extends State<AuthPage> {
         ),
       ),
     );
+  }
+
+  DecorationImage _buildBackgroundImage() {
+    return DecorationImage(
+      fit: BoxFit.cover,
+      colorFilter:
+          ColorFilter.mode(Colors.black.withOpacity(0.5), BlendMode.dstATop),
+      image: AssetImage('assets/background.jpg'),
+    );
+  }
+
+  Widget _buildEmailTextField() {
+    return TextFormField(
+      decoration: InputDecoration(
+        labelText: 'E-Mail',
+        filled: true,
+        fillColor: Colors.white,
+      ),
+      keyboardType: TextInputType.emailAddress,
+      initialValue: "test@test.com",
+      validator: (String value) {
+        if (value.isEmpty ||
+            !RegExp(r"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?")
+                .hasMatch(value)) {
+          return 'Please enter a valid email';
+        }
+      },
+      onSaved: (String value) {
+        _formData['email'] = value;
+      },
+    );
+  }
+
+  Widget _buildPasswordConfirmTextField() {
+    return TextFormField(
+        decoration: InputDecoration(
+            labelText: 'Confirm Password',
+            filled: true,
+            fillColor: Colors.white),
+        obscureText: true,
+        validator: (String value) {
+          if (_passwordTextController.text != value) {
+            return 'Passwords do not match';
+          }
+        });
+  }
+
+  Widget _buildPasswordTextField() {
+    return TextFormField(
+      decoration: InputDecoration(
+        labelText: 'Password',
+        filled: true,
+        fillColor: Colors.white,
+      ),
+      obscureText: true,
+      controller: _passwordTextController,
+      validator: (String value) {
+        if (value.isEmpty || value.length < 6) {
+          return 'Password invalid';
+        }
+      },
+      onSaved: (String value) {
+        _formData['password'] = value;
+      },
+    );
+  }
+
+  Widget _buildAcceptSwitch() {
+    return SwitchListTile(
+      value: _formData['acceptTerms'],
+      onChanged: (bool value) {
+        setState(() {
+          _formData['acceptTerms'] = value;
+        });
+      },
+      title: Text('Accept Terms'),
+    );
+  }
+
+  void _submitForm(Function authenticate) async {
+    if (!_formKey.currentState.validate() || !_formData['acceptTerms']) {
+      return;
+    }
+    _formKey.currentState.save();
+    Map<String, dynamic> successInformation = await authenticate(
+        _formData['email'], _formData['password'], _authMode);
+
+    if (successInformation['success']) {
+      // Navigator.pushReplacementNamed(context, '/');
+    } else {
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Error occurred'),
+              content: Text(successInformation['message']),
+              actions: <Widget>[
+                FlatButton(
+                  child: Text('Okay'),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                )
+              ],
+            );
+          });
+    }
   }
 }

@@ -15,7 +15,7 @@ void main() {
   // debugPaintSizeEnabled = true;
   // debugPaintBaselinesEnabled = true;
   // debugPaintPointersEnabled = true;
-  MapView.setApiKey('superdupertestkeysuperdupertestkeysuper');
+  MapView.setApiKey('superduperdancepartysuperduperdancepartys');
   runApp(MyApp());
 }
 
@@ -29,12 +29,12 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   bool _isAuthenticated = false;
   final MainModel _model = MainModel();
+  
   @override
   void initState() {
     _model.autoAuthenticate();
     _model.userSubject.listen((bool isAuthenticated) {
-      setState(() {
-        print('hello');
+      setState(() { 
         _isAuthenticated = isAuthenticated;
       });
     });

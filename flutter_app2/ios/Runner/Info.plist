@@ -43,5 +43,10 @@
 	<false/>	
 	<key>NSLocationWhenInUseUsageDescription</key>
     <string>Using location is required to locate product</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+    <string>Using location is required to locate product</string>
+	<key>NSMicrophoneUsageDescription</key>
+    <string>Using location is required to locate product</string>
+
 </dict>
 </plist>
